@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8">    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>QRBOTS</title>
+
+    <!-- For the map -->
+    <link rel = "stylesheet" href = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
+    <script src = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+  </head>
+
+  <body>
+    <!-- Navbar Right /////////////////////////////////////////////////////////////////////////////// -->
+    <div style="position: absolute; top: 0px; right: 0px;">
+
+      <span style="font-size: 20px;">QRBOTS</span>
+    
+      <select id="comPortDropDownList" name="comPort" style="font-size: 14px; width: 100px;">
+        <option value="UDP">UDP</option>
+      </select>   
+
+      <input type="text" id="udpPort" name="udpPort" value="14550" style="font-size: 12px; width: 75px;">
+
+      <select id="baudRateDropDownList" name="baudRate" style="font-size: 14px;">
+        <option value="57600">57600</option>
+        <option value="9600">9600</option>
+        <option value="115200">115200</option>
+        <!-- Add more options as needed -->
+      </select>
+
+      <button id="connectButton" type="button" class="btn btn-success btn-sm" style="width: 100px;">CONNECT</button>
+    </div>
+
+    <!-- Navbar left //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+    <ul class="nav nav-pills mb-0" id="pills-tab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="btn btn-dark btn-sm active" id="pills-data-tab" data-bs-toggle="pill" data-bs-target="#pills-data" type="button" role="tab" aria-controls="pills-data" aria-selected="true">DATA</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="btn btn-dark btn-sm" id="pills-video-tab" data-bs-toggle="pill" data-bs-target="#pills-video" type="button" role="tab" aria-controls="pills-video" aria-selected="false">VIDEO</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="btn btn-dark btn-sm" id="pills-config-tab" data-bs-toggle="pill" data-bs-target="#pills-config" type="button" role="tab" aria-controls="pills-config" aria-selected="false">CONFIG</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="btn btn-dark btn-sm" id="pills-setup-tab" data-bs-toggle="pill" data-bs-target="#pills-setup" type="button" role="tab" aria-controls="pills-setup" aria-selected="false">SETUP</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="btn btn-dark btn-sm" id="pills-firmware-tab" data-bs-toggle="pill" data-bs-target="#pills-firmware" type="button" role="tab" aria-controls="pills-firmware" aria-selected="false">FIRMWARE</button>
+      </li> 
+      <li class="nav-item" role="presentation">
+        <button class="btn btn-dark btn-sm" id="pills-droneSwarm-tab" data-bs-toggle="pill" data-bs-target="#pills-droneSwarm" type="button" role="tab" aria-controls="pills-droneSwarm" aria-selected="false">DRONE SWARM</button>
+      </li>
+       
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+      <!-- DATA ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+      <div class="tab-pane fade show active" id="pills-data" role="tabpanel" aria-labelledby="pills-data-tab" tabindex="0">        
+        
+
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-3" style="background-color: #204439;">
+
+              <div style="margin-top: 14px;"></div>
+
+              <div class="card">
+                <div class="card-body">
+                  MODE:
+                </div>
+              </div>
+              
+              <div style="margin-top: 10px;"></div>
+
+              <table border="0">
+                <tr>
+                  <td>
+                    <div id="heading-container" style="clip-path: circle(41% at 50.25% 48.25%); transform: scale(1.20);"></div>
+                    <!-- <div id="heading-container" style="clip-path: polygon(8% 7.4%, 92% 7.4%, 92% 89%, 8% 89%); transform: scale(1.20);"></div> -->
+                  </td>
+
+                  <td>
+                    <div id="horizon-container" style="clip-path: circle(38% at 50% 48.25%); transform: scale(1.25);"></div>
+                    <!-- <div id="horizon-container" style="clip-path: polygon(8% 7.4%, 92% 7.4%, 92% 89%, 8% 89%); transform: scale(1.20);"></div> -->
+                  </td>  
+                </tr>
+              </table>
+
+              <div class="card">
+                <div class="card-body">
+                  Yaw: <strong id="yaw">0</strong><br>
+                  Roll: <strong id="roll">0</strong><br>
+                  Pitch: <strong id="pitch">0</strong><br>
+                </div>
+              </div>
+              
+              <div style="margin-top: 10px;"></div>
+          
+              <table border="0" width="100%">
+                <tr>
+                  <td width="50%">
+                    <div class="card">
+                      <div class="card-body" style="text-align: center; padding: 3px;">
+                        Altitude (m)<br>
+                        <strong id="altitude">0.00</strong>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <td width="50%">
+                    <div class="card">
+                      <div class="card-body" style="text-align: center; padding: 3px;">
+                        Dist to Home (m)<br>
+                        <strong id="distToHome">0.00</strong>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td width="50%">
+                    <div class="card">
+                      <div class="card-body" style="text-align: center; padding: 3px;">
+                        Ver. Speed (m/s)<br>
+                        <strong id="verticalSpeed">0.00</strong>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <td width="50%">
+                    <div class="card">
+                      <div class="card-body" style="text-align: center; padding: 3px;">
+                        Hor. Speed (m/s)<br>
+                        <strong id="horizontalSpeed">0.00</strong>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td width="50%">
+                    <div class="card">
+                      <div class="card-body" style="text-align: center; padding: 3px;">
+                        Battery (%)<br>
+                        <strong id="battery">0.00</strong>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <td width="50%">
+                    <div class="card">
+                      <div class="card-body" style="text-align: center; padding: 3px;">
+                        GPS HDOP<br>
+                        <strong id="gpsHDOP">0.00</strong>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <div style="margin-top: 10px;"></div>
+
+              <div class="card">
+                <div class="card-body">
+
+                  <table border="0" width="100%">
+                    <tr>
+                        <td width="60">Throttle</td>
+                        <td>
+                          <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width: 25%"></div>
+                          </div>
+                        </td>
+                    </tr>
+                    <tr>
+                      <td>Roll</td>
+                      <td>
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                          <div class="progress-bar" style="width: 25%"></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Pitch</td>
+                      <td>
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                          <div class="progress-bar" style="width: 25%"></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Yaw</td>
+                      <td>
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                          <div class="progress-bar" style="width: 25%"></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Aux1</td>
+                      <td>
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                          <div class="progress-bar" style="width: 25%"></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Aux2</td>
+                      <td>
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                          <div class="progress-bar" style="width: 25%"></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Aux3</td>
+                      <td>
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                          <div class="progress-bar" style="width: 25%"></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Aux4</td>
+                      <td>
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                          <div class="progress-bar" style="width: 25%"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+              <div style="margin-bottom: 14px;"></div>
+            </div>
+            
+            
+
+            <div class="col-9" style="background-color: rgb(73, 89, 226); padding: 0;">
+              
+              <div id = "map" style="width: 100%; height: 100%"></div>
+              <script>
+                  // Creating map options
+                  var mapOptions = {
+                    center: [17.385044, 78.486671],
+                    zoom: 10
+                  }
+                  
+                  // Creating a map object
+                  var map = new L.map('map', mapOptions);
+                
+                  // Creating a Layer object
+                  var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+                  
+                  // Adding layer to the map
+                  map.addLayer(layer);
+              </script>
+          
+            </div>
+          </div>
+        </div>
+        
+
+       
+
+
+
+
+        <div style="position: absolute; left: 0px;">
+          
+        </div>
+      </div>
+      
+      <!-- VIDEO //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+      <div class="tab-pane fade" id="pills-video" role="tabpanel" aria-labelledby="pills-video-tab" tabindex="0">
+        VIDEO
+      </div>
+      
+      <!-- CONFIG /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+      <div class="tab-pane fade" id="pills-config" role="tabpanel" aria-labelledby="pills-config-tab" tabindex="0">
+        <br>
+        <div class="container">
+          <div class="row">
+            
+            <!-- Configure Parameters -->
+            <div class="col">
+              <div class="card" style="background-color: transparent; border: 1px solid rgb(148, 137, 137);">
+                <div class="card-body">
+                  <div class="text-center">
+                    Configure Parameters
+                  </div>
+                  
+                  <div style="margin-top: 18px;"></div>
+
+                  <center>
+                    <table border="0">
+                      <tr>
+                          <td width="250px" style="font-size: 14px;">Loiter Z vel up Max (m/s):</td>
+                          <td><input type="number" id="loiterZVelUpMax" name="loiterZVelUpMax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                          <td style="font-size: 14px;">Loiter Z vel down Max (m/s):</td>
+                          <td><input type="number" id="loiterZVelDownMax" name="loiterZVelDownMax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Loiter XY Vel (m/s):</td>
+                        <td><input type="number" id="loiterXYVel" name="loiterXYVel" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Land Speed (m/s):</td>
+                        <td><input type="number" id="landSpeed" name="landSpeed" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Takeoff Height (m):</td>
+                        <td><input type="number" id="takeoffHeight" name="takeoffHeight" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Loiter Yaw Speed (rad/s):</td>
+                        <td><input type="number" id="loiterYawSpeed" name="loiterYawSpeed" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">RTL Altitude (m):</td>
+                        <td><input type="number" id="RTLAltitude" name="RTLAltitude" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Waypoint Nav Yaw Speed (rad/s):</td>
+                        <td><input type="number" id="waypointNavYawSpeed" name="waypointNavYawSpeed" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Waypoint Nav Speed Max (m/s):</td>
+                        <td><input type="number" id="waypointNavSpeedMax" name="waypointNavSpeedMax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Weight Offset:</td>
+                        <td><input type="number" id="weightOffset" name="weightOffset" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Altitude Max (m):</td>
+                        <td><input type="number" id="altitudeMax" name="altitudeMax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 14px;">Distance Max (m):</td>
+                        <td><input type="number" id="distanceMax" name="distanceMax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"><br></td>
+                      </tr>
+                    </table>
+                  </center>
+                </div>
+              </div>
+            </div>
+
+            <!-- Altitude Control PID -->
+            <div class="col">
+              <div class="card" style="background-color: transparent; border: 1px solid rgb(148, 137, 137);">
+                <div class="card-body">
+                  <div class="text-center">
+                    Altitude Control PID
+                  </div>
+                                         
+                  <div class="card" style="background-color: transparent; border: 0px solid rgb(148, 137, 137);">
+                    <div class="card-body">
+                      <center>
+                        <table border="0">
+                          <tr>
+                            <td width="150px" style="font-size: 14px;"></td>
+                            <td width="150px" align="center" style="font-size: 14px;">Roll</td>
+                            <td width="150px" align="center" style="font-size: 14px;">Pitch</td>
+                            <td width="150px" align="center" style="font-size: 14px;">Yaw</td> 
+                          </tr>
+                          <tr>
+                              <td width="150px" style="font-size: 14px;">P:</td>
+                              <td><input type="number" id="RollP" name="RollP" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td> 
+                              <td><input type="number" id="PitchP" name="PitchP" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td> 
+                              <td><input type="number" id="YawP" name="YawP" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td> 
+                          </tr>
+                          <tr>
+                              <td style="font-size: 14px;">I:</td>
+                              <td><input type="number" id="RollI" name="RollI" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                              <td><input type="number" id="PitchI" name="PitchI" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                              <td><input type="number" id="YawI" name="YawI" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">D:</td>
+                            <td><input type="number" id="RollD" name="RollD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="PitchD" name="PitchD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YawD" name="YawD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">rD:</td>
+                            <td><input type="number" id="RollrD" name="RollrD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="PitchrD" name="PitchrD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YawrD" name="YawrD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">Imax:</td>
+                            <td><input type="number" id="RollImax" name="RollImax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="PitchImax" name="PitchImax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YawImax" name="YawImax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                        </table>            
+                      </center>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Position Control XY Z PID -->
+            <div class="col">
+              <div class="card" style="background-color: transparent; border: 1px solid rgb(148, 137, 137);">
+                <div class="card-body">
+                  <div class="text-center">
+                    Position Control XYZ PID
+                  </div>
+
+                  <div class="card" style="background-color: transparent; border: 0px solid rgb(148, 137, 137);">
+                    <div class="card-body">
+                      <center>
+                        <table border="0">
+                          <tr>
+                            <td width="500px" style="font-size: 14px;"></td>
+                            <td align="center" style="font-size: 14px;">X</td>
+                            <td align="center" style="font-size: 14px;">Y</td>
+                            <td align="center" style="font-size: 14px;">Z</td> 
+                          </tr>
+                          <tr>
+                              <td style="font-size: 14px;">P:</td>
+                              <td><input type="number" id="XP" name="XP" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td> 
+                              <td><input type="number" id="YP" name="YP" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td> 
+                              <td><input type="number" id="ZP" name="ZP" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td> 
+                          </tr>
+                          <tr>
+                              <td style="font-size: 14px;">I:</td>
+                              <td><input type="number" id="XI" name="XI" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                              <td><input type="number" id="YI" name="YI" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                              <td><input type="number" id="ZI" name="ZI" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">D:</td>
+                            <td><input type="number" id="XD" name="XD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YD" name="YD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="ZD" name="ZD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">rD:</td>
+                            <td><input type="number" id="XrD" name="XrD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YrD" name="YrD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="ZrD" name="ZrD" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">Perrmax:</td>
+                            <td><input type="number" id="XPerrmax" name="XPerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YPerrmax" name="YPerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="ZPerrmax" name="ZPerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">Ierrmax:</td>
+                            <td><input type="number" id="XIerrmax" name="XIerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YIerrmax" name="YIerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="ZIerrmax" name="ZIerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">Derrmax:</td>
+                            <td><input type="number" id="XDerrmax" name="XDerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YDerrmax" name="YDerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="ZDerrmax" name="ZDerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 14px;">Aerrmax:</td>
+                            <td><input type="number" id="XAerrmax" name="XAerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="YAerrmax" name="YAerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                            <td><input type="number" id="ZAerrmax" name="ZAerrmax" min="0.00" value="0.00" step="0.01" style="width: 75px; font-size: 14px;"></td>
+                          </tr>
+                        </table>            
+                      </center>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-center">
+          <div style="margin-top: 10px;">
+            <button id="readParameters" type="button" class="btn btn-success btn-sm">Read Parameters</button>
+            <span style="margin-right: 5px;"></span> <!-- Add horizontal space -->
+            <button id="writeParameters" type="button" class="btn btn-success btn-sm">Write Parameters</button>
+            <span style="margin-right: 5px;"></span> <!-- Add horizontal space -->
+            <button id="loadDefault" type="button" class="btn btn-success btn-sm">Load Default</button>
+            <span style="margin-right: 5px;"></span> <!-- Add horizontal space -->
+            <button id="saveDefault" type="button" class="btn btn-success btn-sm">Save Default</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SETUP //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+      <div class="tab-pane fade" id="pills-setup" role="tabpanel" aria-labelledby="pills-setup-tab" tabindex="0">
+        <br>
+        <div class="container text-center">
+          <div class="row">
+            <div class="col">
+
+              <div class="card" style="background-color: transparent; border: 1px solid rgb(148, 137, 137);">
+                <div class="card-body">
+
+                  <div class="container">
+                    <div class="row">
+                      <div class="col">
+                        <center>
+                          <table border="0">
+                            <tr>
+                              <td width="100px" style="font-size: 14px;">Default:</td>
+                              <td>
+                                <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                  <option value="57600">Loiter</option>
+                                  <option value="9600">ALT</option>
+                                  <!-- Add more options as needed -->
+                                </select> 
+                              </td>
+                            </tr>
+                          </table> 
+                        </center>
+                      </div>
+          
+                      <div class="col">
+                        <center>
+                          <table border="0">
+                            <tr>
+                                <td width="150px" style="font-size: 14px;">Channel One:</td>
+                                <td>
+                                  <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                    <option value="Waypoint">Waypoint</option>
+                                    <option value="SmartRTL">Smart RTL</option>
+                                    <option value="RTL">RTL</option>
+                                    <option value="Land">Land</option>
+                                    <option value="FollowMe">Follow Me</option>
+                                    <option value="Circle">Circle</option>
+                                    <option value="Guided">Guided</option>
+                                    <option value="Break">Break</option>
+                                    <option value="Flip">Flip</option>
+                                    <option value="FPV">FPV</option>
+                                    <option value="Gimble">Gimble</option>
+                                    <option value="Throw">Throw</option>
+                                    <option value="Loiter">Loiter</option>
+                                    <option value="ALT">ALT</option>
+                                  </select> 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 14px;">Channel Two:</td>
+                                <td>
+                                  <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                    <option value="Waypoint">Waypoint</option>
+                                    <option value="SmartRTL">Smart RTL</option>
+                                    <option value="RTL">RTL</option>
+                                    <option value="Land">Land</option>
+                                    <option value="FollowMe">Follow Me</option>
+                                    <option value="Circle">Circle</option>
+                                    <option value="Guided">Guided</option>
+                                    <option value="Break">Break</option>
+                                    <option value="Flip">Flip</option>
+                                    <option value="FPV">FPV</option>
+                                    <option value="Gimble">Gimble</option>
+                                    <option value="Throw">Throw</option>
+                                    <option value="Loiter">Loiter</option>
+                                    <option value="ALT">ALT</option>
+                                  </select> 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 14px;">Channel Three:</td>
+                                <td>
+                                  <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                    <option value="Waypoint">Waypoint</option>
+                                    <option value="SmartRTL">Smart RTL</option>
+                                    <option value="RTL">RTL</option>
+                                    <option value="Land">Land</option>
+                                    <option value="FollowMe">Follow Me</option>
+                                    <option value="Circle">Circle</option>
+                                    <option value="Guided">Guided</option>
+                                    <option value="Break">Break</option>
+                                    <option value="Flip">Flip</option>
+                                    <option value="FPV">FPV</option>
+                                    <option value="Gimble">Gimble</option>
+                                    <option value="Throw">Throw</option>
+                                    <option value="Loiter">Loiter</option>
+                                    <option value="ALT">ALT</option>
+                                  </select> 
+                                </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 14px;">Channel Four:</td>
+                              <td>
+                                <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                  <option value="Waypoint">Waypoint</option>
+                                    <option value="SmartRTL">Smart RTL</option>
+                                    <option value="RTL">RTL</option>
+                                    <option value="Land">Land</option>
+                                    <option value="FollowMe">Follow Me</option>
+                                    <option value="Circle">Circle</option>
+                                    <option value="Guided">Guided</option>
+                                    <option value="Break">Break</option>
+                                    <option value="Flip">Flip</option>
+                                    <option value="FPV">FPV</option>
+                                    <option value="Gimble">Gimble</option>
+                                    <option value="Throw">Throw</option>
+                                    <option value="Loiter">Loiter</option>
+                                    <option value="ALT">ALT</option>
+                                </select> 
+                              </td>
+                            </tr>
+                          </table>
+                        </center>
+                      </div>
+          
+                      <div class="col">
+                        <center>
+                          <table border="0">
+                            <tr>
+                                <td width="150px" style="font-size: 14px;">Channel Five:</td>
+                                <td>
+                                  <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                    <option value="Waypoint">Waypoint</option>
+                                    <option value="SmartRTL">Smart RTL</option>
+                                    <option value="RTL">RTL</option>
+                                    <option value="Land">Land</option>
+                                    <option value="FollowMe">Follow Me</option>
+                                    <option value="Circle">Circle</option>
+                                    <option value="Guided">Guided</option>
+                                    <option value="Break">Break</option>
+                                    <option value="Flip">Flip</option>
+                                    <option value="FPV">FPV</option>
+                                    <option value="Gimble">Gimble</option>
+                                    <option value="Throw">Throw</option>
+                                    <option value="Loiter">Loiter</option>
+                                    <option value="ALT">ALT</option>
+                                  </select> 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 14px;">Channel Six:</td>
+                                <td>
+                                  <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                    <option value="Waypoint">Waypoint</option>
+                                    <option value="SmartRTL">Smart RTL</option>
+                                    <option value="RTL">RTL</option>
+                                    <option value="Land">Land</option>
+                                    <option value="FollowMe">Follow Me</option>
+                                    <option value="Circle">Circle</option>
+                                    <option value="Guided">Guided</option>
+                                    <option value="Break">Break</option>
+                                    <option value="Flip">Flip</option>
+                                    <option value="FPV">FPV</option>
+                                    <option value="Gimble">Gimble</option>
+                                    <option value="Throw">Throw</option>
+                                    <option value="Loiter">Loiter</option>
+                                    <option value="ALT">ALT</option>
+                                  </select> 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-size: 14px;">Channel Seven:</td>
+                                <td>
+                                  <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                    <option value="Waypoint">Waypoint</option>
+                                    <option value="SmartRTL">Smart RTL</option>
+                                    <option value="RTL">RTL</option>
+                                    <option value="Land">Land</option>
+                                    <option value="FollowMe">Follow Me</option>
+                                    <option value="Circle">Circle</option>
+                                    <option value="Guided">Guided</option>
+                                    <option value="Break">Break</option>
+                                    <option value="Flip">Flip</option>
+                                    <option value="FPV">FPV</option>
+                                    <option value="Gimble">Gimble</option>
+                                    <option value="Throw">Throw</option>
+                                    <option value="Loiter">Loiter</option>
+                                    <option value="ALT">ALT</option>
+                                  </select> 
+                                </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 14px;">Channel Eight:</td>
+                              <td>
+                                <select id="defaultDownList" name="baudRate" style="font-size: 14px;">
+                                  <option value="Waypoint">Waypoint</option>
+                                    <option value="SmartRTL">Smart RTL</option>
+                                    <option value="RTL">RTL</option>
+                                    <option value="Land">Land</option>
+                                    <option value="FollowMe">Follow Me</option>
+                                    <option value="Circle">Circle</option>
+                                    <option value="Guided">Guided</option>
+                                    <option value="Break">Break</option>
+                                    <option value="Flip">Flip</option>
+                                    <option value="FPV">FPV</option>
+                                    <option value="Gimble">Gimble</option>
+                                    <option value="Throw">Throw</option>
+                                    <option value="Loiter">Loiter</option>
+                                    <option value="ALT">ALT</option>
+                                </select> 
+                              </td>
+                            </tr>
+                          </table>
+                        </center>
+                      </div>
+                    </div>
+                  </div>
+          
+                  <div class="container">
+                    <div class="row">
+                      <div class="col">
+                        <div style="padding-top: 7px;">
+                          <center>
+                            <button type="button" class="btn btn-success btn-sm">Calibrate Accel</button>
+                          </center>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br>
+
+        <div class="container">
+          <div class="row">
+            
+            <div class="col">
+              <center>
+                <table border="1">
+                  <tr>
+                    <td width="1000px" align="center" style="font-size: 14px;">Accelerometer Calibration</td>
+                  </tr>
+                  <tr>
+                    <td align="center"><button type="button" class="btn btn-success btn-sm">Calibrate Accel</button></td>
+                  </tr>
+                </table>   
+              </center> 
+
+              <br>
+
+              <center>
+                <table border="1">
+                  <tr>
+                    <td width="1000px" align="center" style="font-size: 14px;">ESC Calibration</td>
+                  </tr>
+                  <tr>
+                    <td align="center"><button type="button" class="btn btn-success btn-sm">Calibrate Accel</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-size: 13px;">
+                      <ul>
+                        <li>Remove Props!!!</li>
+                        <li>After clicking this button:</li>
+                        <ul>
+                          <li>Wait for comfirmation</li>
+                          <li>If it failed, Retry according to message</li>
+                          <li>Otherwise, Disconnect and Poweroff</li>
+                          <li>After that Power ON</li>
+                          <li>When LEDs flash, push saftety switch (if present)</li>
+                          <li>ESCs should BEEP as they are calibrated</li>
+                          <li>Restart flight control normally after calibration</li>
+                        </ul>
+                      </ul>
+                    </td>
+                  </tr>
+                </table>   
+              </center> 
+            </div>
+
+            <div class="col">
+              <center>
+                <table border="1">
+                  <tr>
+                    <td width="1000px" align="center" style="font-size: 14px;">Compass Calibration</td>
+                  </tr>
+                  <tr>
+                    <td align="center"><button type="button" class="btn btn-success btn-sm">Calibrate Accel</button></td>
+                  </tr>
+                </table>   
+              </center>    
+              
+              <br>
+
+              <center>
+                <table border="1">
+                  <tr>
+                    <td width="1000px" align="center" style="font-size: 14px;">Radio Calibration</td>
+                  </tr>
+                  <tr>
+                    <td align="center"><button type="button" class="btn btn-success btn-sm">Calibrate Accel</button></td>
+                  </tr>
+                  <tr>
+                    <td style="font-size: 13px;">
+                      <ul>
+                        <li>Ensure,</li>
+                          <ul>
+                            <li>Transmitter is ON</li>
+                            <li>Receiver is Powered and conncted</li>
+                            <li>Motors DO HOT have POWERON PROPS</li>
+                          </ul>
+                        <li>Click the button</li>
+                        <li>MOVE all RC Sticks to their Extreme Positions</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </table>   
+              </center>  
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- FIRMWARE ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+      <div class="tab-pane fade" id="pills-firmware" role="tabpanel" aria-labelledby="pills-firmware-tab" tabindex="0">
+        FIRMWARE
+      </div>
+      
+      <!-- Drone Swarm ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+      <div class="tab-pane fade" id="pills-droneSwarm" role="tabpanel" aria-labelledby="pills-droneSwarm-tab" tabindex="0">
+
+        <div class="container">
+          <div class="row">
+            <div class="col">
+
+              <div style="margin-top: 10px;"></div>
+
+              <div class="card">
+                <div class="card-body">
+                  Drone 1<br>
+                  Yaw: <strong id="yaw_1">0</strong><br>
+                  Roll: <strong id="roll_1">0</strong><br>
+                  Pitch: <strong id="pitch_1">0</strong><br>
+                </div>
+              </div>
+
+              <div style="margin-top: 10px;"></div>
+
+              <div class="card">
+                <div class="card-body">
+                  Drone 2<br>
+                  Yaw: <strong id="yaw_2">0</strong><br>
+                  Roll: <strong id="roll_2">0</strong><br>
+                  Pitch: <strong id="pitch_2">0</strong><br>
+                </div>
+              </div>
+
+              <div style="margin-top: 10px;"></div>
+
+              <div class="card">
+                <div class="card-body">
+                  <table border="0">
+                    <tr>
+                        <td width="75px">Start</td>
+                        <td>
+                          <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+                            <input type="radio" class="btn-check" name="start" id="startOff" autocomplete="off" checked>
+                            <label class="btn btn-outline-danger" for="startOff">OFF</label>
+                          
+                            <input type="radio" class="btn-check" name="start" id="startOn" autocomplete="off">
+                            <label class="btn btn-outline-success" for="startOn">ON</label>
+                          </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Take Off</td>
+                        <td>
+                          <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+                            <input type="radio" class="btn-check" name="takeOff" id="takeOffOff" autocomplete="off" checked>
+                            <label class="btn btn-outline-danger" for="takeOffOff">OFF</label>
+                          
+                            <input type="radio" class="btn-check" name="takeOff" id="takeOffOn" autocomplete="off">
+                            <label class="btn btn-outline-success" for="takeOffOn">ON</label>
+                          </div>
+                        </td>
+                    </tr>
+                    <tr>
+                      <td>Land</td>
+                      <td>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+                          <input type="radio" class="btn-check" name="land" id="landOff" autocomplete="off" checked>
+                          <label class="btn btn-outline-danger" for="landOff">OFF</label>
+                        
+                          <input type="radio" class="btn-check" name="land" id="landOn" autocomplete="off">
+                          <label class="btn btn-outline-success" for="landOn">ON</label>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>RTL</td>
+                      <td>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+                          <input type="radio" class="btn-check" name="rtl" id="rtlOff" autocomplete="off" checked>
+                          <label class="btn btn-outline-danger" for="rtlOff">OFF</label>
+                        
+                          <input type="radio" class="btn-check" name="rtl" id="rtlOn" autocomplete="off">
+                          <label class="btn btn-outline-success" for="rtlOn">ON</label>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Disarm</td>
+                      <td>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+                          <input type="radio" class="btn-check" name="disarm" id="disarmOff" autocomplete="off" checked>
+                          <label class="btn btn-outline-danger" for="disarmOff">OFF</label>
+                        
+                          <input type="radio" class="btn-check" name="disarm" id="disarmOn" autocomplete="off">
+                          <label class="btn btn-outline-success" for="disarmOn">ON</label>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="./renderer.js"></script>
+    
+    <script src="./flight_indicators/jquery.js"></script>
+    <script src="./flight_indicators/dist/jean-flight-indicator.js"></script>
+    <script src="./gauges.js"></script>	
+    
+  </body>
+</html>

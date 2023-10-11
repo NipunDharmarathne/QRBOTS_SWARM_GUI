@@ -1,0 +1,19 @@
+{
+  "name": "qrbots",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nipun Dharmarathne",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^26.2.4"
+  },
+  "dependencies": {
+    "node-mavlink": "^2.0.3",
+    "serialport": "^12.0.0"
+  }
+}
